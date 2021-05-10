@@ -25,6 +25,9 @@
         <button mat-button>SHARE</button>
       </mat-card-actions>
     </mat-card>
+    <div [hidden]="dish">
+      <mat-spinner></mat-spinner><h4>Loading . . . Please Wait</h4>
+    </div>
   
   </div>
 
@@ -37,6 +40,9 @@
         <p matLine>--{{comment.author}},{{comment.date | date}</p>   
       </mat-list-item>
     </mat-list>
+    <div [hidden]="dish">
+      <mat-spinner></mat-spinner><h4>Loading . . . Please Wait</h4>
+    </div>
   </div>
 
 </div>
