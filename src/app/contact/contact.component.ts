@@ -1,8 +1,10 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, Inject, OnInit, ViewChild } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 
 import { Feedback, ContactType } from '../shared/feedback';
 import { flyInOut , expand} from '../animations/app.animation';
+import { FeedbackService} from '../services/feedback.service';
+import { delay } from 'rxjs/operators';
 
 @Component({
   selector: 'app-contact',
@@ -14,13 +16,17 @@ import { flyInOut , expand} from '../animations/app.animation';
     },
     animations: [
       flyInOut(),
-      expand
+      expand()
     ]
 })
 
 export class ContactComponent implements OnInit {
   feedbackForm: FormGroup;
   feedback: Feedback;
+  errMess:string;
+  hideForm:string;
+  loading:string;
+  looking:string;
 
   contactType = ContactType;
 
@@ -54,11 +60,15 @@ export class ContactComponent implements OnInit {
     },
   };
 
-  constructor(private fb: FormBuilder) { 
-    this.createForm();
+  constructor(private fb: FormBuilder,
+    private feedbackservice: FeedbackService,
+    @Inject('BaseURL') private BaseURL) { 
+    
   }
 
   ngOnInit() {
+    this.createForm();
+    this.hideForm="true";
   }
 
   createForm(): void {
@@ -101,6 +111,17 @@ export class ContactComponent implements OnInit {
   onSubmit() {
     this.feedback = this.feedbackForm.value;
     console.log(this.feedback);
+    this.feedbackservice.submitFeedback(this.feedback)
+    .subscribe(feedback=>{
+      this.feedback=feedback;
+
+    },
+    errmess => {this.feedback= null; this.errMess= <any>errmess;});
+    
+    this.hideForm=null;
+    this.loading="true";
+    
+    
     this.feedbackForm.reset({
       firstname: '',
       lastname: '',
@@ -111,5 +132,7 @@ export class ContactComponent implements OnInit {
       message: ''
     });
     this.feedbackFormDirective.resetForm();
+    setTimeout(()=>{this.loading=null; this.looking='true'},2000)
+    setTimeout(()=>{this.hideForm="true"; this.looking=null},5000)
   }
 }
